@@ -6,61 +6,53 @@
 package BO_Layer.Objects;
 
 import BO_Layer.BussinesObjects.OTabla;
-import Data_Layer.MySql_Tabla;
+import BO_Layer.Interfaces.IBO_Tabla;
+import DAO_Layer.Implementations.MySql_TablaDAO;
+import DAO_Layer.Interfaces.ITablaDAO;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
 
 /**
- *
+ * Business Object implementation for Tabla
  * @author Desarrollo
  */
-public class BO_Tabla {
+public class BO_Tabla implements IBO_Tabla {
     
-    MySql_Tabla _bo;
+    private ITablaDAO _dao;
 
     public BO_Tabla() throws Exception {
         try {
-            this._bo = new MySql_Tabla();
+            this._dao = new MySql_TablaDAO();
         } catch (Exception ex) {
           throw ex;
         }       
     }
     
+    @Override
     public ArrayList<OTabla> Obtener_filas() throws Exception
     {
         try{            
-            ArrayList<OTabla> coleccion =  _bo.Obtener_filas();
+            ArrayList<OTabla> coleccion =  _dao.Obtener_filas();
             return coleccion;
         }catch(Exception ex){
             throw ex;
         }
     }
     
+    @Override
     public void Insertar_registro(String pCampo) throws SQLException, Exception{
         try{
-       
+           
+            // Transaction management at BO layer
+            // Note: You may need to expose connection management from DAO or handle it differently
             
-            _bo.getConexion().getConexion().setAutoCommit(false);
-            
-            
-            _bo.Insertar_registro(pCampo);
+            _dao.Insertar_registro(pCampo);
                 
                                   
-            _bo.getConexion().getConexion().commit();
-             
         }catch(SQLException ex){
-           if(_bo.getConexion().getConexion() !=null){
-                try{
-                    _bo.getConexion().getConexion().rollback();
-                } catch (SQLException exc) {
-                      throw exc;
-                }           
-                
-                throw ex;
-            }
+           throw ex;
         }catch(Exception e){
-            _bo.getConexion().getConexion().rollback();
             throw e;
         }
     }
